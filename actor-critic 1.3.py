@@ -32,7 +32,7 @@ mass = 1
 actual_state = np.zeros(gaussian_number, dtype=np.uint8)
 
 # init ANN's parameters
-eta = 0.03
+eta = 0.005
 discount_factor = 0.9
 
 # input parameters
@@ -49,8 +49,8 @@ previous_critic_output = np.zeros(critic_n_output)
 actor_n_output = 1
 actor_output = np.zeros(actor_n_output)
 
-n_trial = 100
-max_trial_movements = 300
+n_trial = 500
+max_trial_movements = 200
 
 # init storage arrays
 number_needed_steps = np.zeros(n_trial)
@@ -225,5 +225,5 @@ if __name__ == "__main__":
     plt.title('number of movement to get reward')
     plt.xlim([0, n_trial])
     plt.ylim([0, max_trial_movements])
-    plt.xticks(np.arange(0,n_trial, 1))
+    plt.xticks(np.arange(0,n_trial, 10))
     plt.plot(number_needed_steps)
