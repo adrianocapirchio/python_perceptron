@@ -32,8 +32,8 @@ mass = 1
 actual_state = np.zeros(gaussian_number, dtype=np.uint8)
 
 # init ANN's parameters
-eta = 0.05
-discount_factor = 0.99
+eta = 0.03
+discount_factor = 0.9
 
 # input parameters
 n_input = gaussian_number
@@ -49,7 +49,7 @@ previous_critic_output = np.zeros(critic_n_output)
 actor_n_output = 1
 actor_output = np.zeros(actor_n_output)
 
-n_trial = 30
+n_trial = 100
 max_trial_movements = 300
 
 # init storage arrays
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     for trial in xrange(n_trial):
         
         # temperature magnitude
-        T = 1 * np.exp(- trial * 0.1 / float(n_trial))
+        T = 1 * np.exp(- trial * 0.3 / float(n_trial))
      #   print "T"
        # print T
         # init starting trial's position
