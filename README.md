@@ -9,6 +9,6 @@ PROVA
 # perceptron 2.0 implemented cerebellum class
 # perceptron 2.1 added noise and average error
 # actor-critic 1.0 one dimension, movement discete movement +1/-1
-# actor-critic 1.1 addesd subdivided trial plotting
+# actor-critic 1.1 added subdivided trial plotting
 # actor-critic 1.2 added cinematics
-# actor-critic 1.3 continuos, don't work
+# actor-critic 1.3 implemented continuous movement
