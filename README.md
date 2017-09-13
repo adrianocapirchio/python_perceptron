@@ -12,3 +12,5 @@ PROVA
 # actor-critic 1.1 added subdivided trial plotting
 # actor-critic 1.2 added cinematics
 # actor-critic 1.3 implemented continuous movement
+# actor-critic 1.4 adjusted parameters
+# actor-critic 1.5 implemented 3d
