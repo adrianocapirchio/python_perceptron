@@ -25,7 +25,7 @@ std_dev = 1. / ((n_interval -1) * 2)
 # TIME PARAMETERS
 delta_time = 0.1
 tau = 1
-n_trial = 500
+n_trial = 1000
 max_trial_movements = 3000
 
 
@@ -86,8 +86,7 @@ actual_critic_output = np.zeros(critic_n_output)
 previous_critic_output = np.zeros(critic_n_output)
 
 
-
-# init storage arrays
+# STORAGE ARRAYS
 number_needed_steps = np.zeros(n_trial)
 
 
@@ -112,19 +111,22 @@ def spreading(w , pattern):
 def error(EP, actual_position):
     return EP - actual_position 
 
-def computate_noise(previous_noise, std_dev):    
+def computate_noise(previous_noise):    
     C1 = delta_time / tau
     C2 = 0.9
-    return previous_noise + C1 * (C2 * np.random.randn() - previous_noise)
+    return previous_noise + C1 * (C2 * np.random.randn(*previous_noise.shape) - previous_noise)
 
 def derivative(x1, x2, delta_time, tau):
     return (x1 - x2) / (delta_time / tau)
 
 def PID_controller(actual_error, previous_error): 
     Kp = 0.6
-    Kd = 0.15
+    Kd = 0.2
     force = Kp * (actual_error) + Kd * derivative(actual_error, previous_error, delta_time, tau)
     return force 
+
+def Cut_range(x, x_min, x_high):
+    return np.maximum(x_min, np.minimum(1,x))
 
 def TDerror(actual_reward, actual_critic_output, previous_critic_output):
     x = discount_factor * actual_critic_output - previous_critic_output 
@@ -188,7 +190,7 @@ if __name__ == "__main__":
             agent, = ax1.plot([agent_starting_position[0]], [agent_starting_position[1]], [agent_starting_position[2]], 'o', color = "red")
         
         # show plotting over without noise
-        if trial > 400:
+        if trial > 950:
             T = 0
             text1.set_text("trial = %s" % (trial))    
             agent.remove()
@@ -200,7 +202,7 @@ if __name__ == "__main__":
         for movement in xrange(max_trial_movements):
             
             # refresh counters
-            if trial > 400:
+            if trial > 950:
                 text2.set_text("movement = %s" % (movement))
            
            # init first movement's parameters
@@ -221,33 +223,12 @@ if __name__ == "__main__":
         
             # storage old noise and compute new noise
             previous_noise = actual_noise.copy()
-            actual_noise[0] = computate_noise(previous_noise[0], std_dev) * T
-            actual_noise[1] = computate_noise(previous_noise[1], std_dev) * T
-            actual_noise[2] = computate_noise(previous_noise[2], std_dev) * T
+            actual_noise = computate_noise(previous_noise) * T
             
             # compute EP
-            EP[0] = x_actor_output  + actual_noise[0]
-            EP[1] = y_actor_output  + actual_noise[1]
-            EP[2] = z_actor_output  + actual_noise[2]
-            
+            EP = np.array([x_actor_output, y_actor_output, z_actor_output])  + actual_noise
+            EP = Cut_range(EP, 0, 1)
             # delete overshoot
-            if EP[0] > 1:
-                EP[0] = 1
-                  
-            if EP[0] < 0:
-                EP[0] = 0
-            
-            if EP[1] > 1:
-                EP[1] = 1
-                  
-            if EP[1] < 0:
-                EP[1] = 0
-            
-            if EP[2] > 1:
-                EP[2] = 1
-                  
-            if EP[2] < 0:
-                EP[2] = 0
     
             # storage old movement values    
             if movement > 0:
@@ -257,33 +238,14 @@ if __name__ == "__main__":
                 previous_acceleration = actual_acceleration.copy()
                 
             # compute movement 
-            
             actual_error = error(EP,actual_position)
             actual_acceleration = PID_controller(actual_error, previous_error) / mass
             actual_velocity = previous_velocity + actual_acceleration * delta_time
             actual_position = previous_position + actual_velocity * delta_time
-         
-            # set position limits
-            if actual_position[0] > 1:
-                actual_position[0] = 0.9999999
-                  
-            if actual_position[0] < 0:
-                actual_position[0] = 0.0000001
-            
-            if actual_position[1] > 1:
-                actual_position[1]= 0.9999999
-                  
-            if actual_position[1]< 0:
-                actual_position[1] = 0.0000001
-            
-            if actual_position[2] > 1:
-                actual_position[2] = 0.9999999
-                  
-            if actual_position[2] < 0:
-                actual_position[2] = 0.0000001
+            actual_position = Cut_range(actual_position, 0.00001, 0.99999) 
             
             # ploting movement
-            if trial > 400:
+            if trial > 950:
                 agent.remove()
                 agent, = ax1.plot([actual_position[0]], [actual_position[1]], [actual_position[2]], 'o', color = "red")
                 plt.pause(0.000000001)
